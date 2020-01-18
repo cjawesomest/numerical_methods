@@ -21,11 +21,11 @@ def false_position(function_handle, upper_limit, lower_limit, max_iter, max_erro
         return []
     low_x = lower_limit
     high_x = upper_limit
-    mid_x = high_x - (function(high_x)*(low_x - high_x))/(function(low_x)-function(high_x))
+    mid_x = high_x - (function_handle(high_x)*(low_x - high_x))/(function_handle(low_x)-function_handle(high_x))
     previous_mid_x = mid_x
     error = max_error + 1
-    while (error >= max_error and iter_count <= max_iter):
-        mid_x = high_x - (function(high_x)*(low_x - high_x))/(function(low_x)-function(high_x))
+    while (error >= max_error and iter_count < max_iter):
+        mid_x = high_x - (function_handle(high_x)*(low_x - high_x))/(function_handle(low_x)-function_handle(high_x))
 
         low_value = function_handle(low_x)
         mid_value = function_handle(mid_x)
