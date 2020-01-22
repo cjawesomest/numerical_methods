@@ -39,4 +39,10 @@ def newton_rhapson(function_handle, derivative_handle, init_guess, max_iter, max
 if __name__ == '__main__':
     function = lambda x: 3- 2*math.exp(x)
     derivative = lambda x: -2*math.exp(x)
-    print(newton_rhapson(function, derivative, 0, 100, 0.05))
+    output = newton_rhapson(function, derivative, 0, 100, 0.05)
+    root = output[0]
+    results = output[1]
+    print("Root for function: " + str(root))
+    print("Iteration|Previous X|Current X|Value at Current X|Error")
+    for entry in results:
+        print(entry)

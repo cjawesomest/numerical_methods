@@ -60,4 +60,10 @@ def bisection(function_handle, upper_limit, lower_limit, max_iter, max_error):
 
 if __name__ == '__main__':
     function = lambda x: (x ** 3 + 2 * (x ** 2) - 5 * x - 6)
-    print(bisection(function, 2.3, 1.8, 100, 0.05))
+    output = bisection(function, 2.3, 1.8, 100, 0.05)
+    root = output[0]
+    results = output[1]
+    print("Root for function: " + str(root))
+    print("Iteration|Low X|High X|Mid X|Value at Mid X|Error")
+    for entry in results:
+        print(entry)

@@ -9,7 +9,8 @@ def fixed_point(function_handle, init_guess, max_iter, max_error):
     #   [0]: iteration number
     #   [1]: previous x
     #   [2]: current x
-    #   [3]: percent error
+    #   [3]: value at current x
+    #   [4]: percent error
     iter_results = []
 
     function_plus_x = lambda x: function_handle(x) + x
@@ -26,6 +27,7 @@ def fixed_point(function_handle, init_guess, max_iter, max_error):
         iter_info.append(iter_count)
         iter_info.append(prev_x)
         iter_info.append(current_x)
+        iter_info.append(function_handle(current_x))
         iter_info.append(error)
         iter_results.append(iter_info)
 
@@ -38,4 +40,10 @@ def fixed_point(function_handle, init_guess, max_iter, max_error):
 
 if __name__ == '__main__':
     function = lambda x: math.exp(-x) - x
-    print(fixed_point(function, 0, 100, 0.05))
+    output = fixed_point(function, 0, 100, 0.05)
+    root = output[0]
+    results = output[1]
+    print("Root for function: " + str(root))
+    print("Iteration|Previous X|Current X|Value at Current X|Error")
+    for entry in results:
+        print(entry)

@@ -61,4 +61,10 @@ def false_position(function_handle, upper_limit, lower_limit, max_iter, max_erro
 
 if __name__ == '__main__':
     function = lambda x: (x ** 3 + 2 * (x ** 2) - 5 * x - 6)
-    print(false_position(function, -2.8, -3.8, 100, 0.05))
+    output = false_position(function, -2.8, -3.8, 100, 0.05)
+    root = output[0]
+    results = output[1]
+    print("Root for function: " + str(root))
+    print("Iteration|Low X|High X|Mid X|Value at Mid X|Error")
+    for entry in results:
+        print(entry)

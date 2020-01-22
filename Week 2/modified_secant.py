@@ -40,4 +40,10 @@ def modified_secant(function_handle, init_guess, perturbation_fraction, max_iter
 
 if __name__ == '__main__':
     function = lambda x: x**3 - x**2*(3541/2500) - x*(48741701/5000000) + (41249804989/2500000000)
-    print(modified_secant(function, 4, 1*(10**(-6)), 100, 5*(10**(-6))))
+    output = modified_secant(function, 4, 1*(10**(-6)), 100, 5*(10**(-6)))
+    root = output[0]
+    results = output[1]
+    print("Root for function: " + str(root))
+    print("Iteration|Previous X|Current X|Value at Current X|Error")
+    for entry in results:
+        print(entry)

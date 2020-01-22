@@ -31,4 +31,7 @@ def incremental(function_handle, upper_limit, lower_limit, num_of_regions):
 
 if __name__ == '__main__':
     function = lambda x: (x**3 + 2*(x**2) - 5*x - 6)
-    print(incremental(function, -4, 4, 301))
+    print("Brackets of Potential Roots:")
+    output = incremental(function, -4, 4, 301)
+    for bracket in output:
+        print(bracket)
