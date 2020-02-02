@@ -2,8 +2,8 @@
 # Performs Gauss elimination(with partial pivoting). Inputs are the array of system
 # coefficients (the A matrix) and the resultant column vector (the b vector). The output is a
 # column vector X that is the solution of the system of equations Ax = b.
-def pivot(A_matrix, b_vector, s_vector, k_value):
-    n = len(A_matrix)
+def pivot(A_matrix, b_vector, s_vector, k_value, iter):
+    n = iter
     pivot = k_value
     big = abs(A_matrix[k_value][k_value]/s_vector[k_value])
     for i in range(k_value, n):
@@ -12,7 +12,7 @@ def pivot(A_matrix, b_vector, s_vector, k_value):
             big = dummy
             pivot = i
     if not pivot == k_value:
-        for j in range(k_value-1, n):
+        for j in range(k_value, n):
             dummy = A_matrix[pivot][j]
             A_matrix[pivot][j] = A_matrix[k_value][j]
             A_matrix[k_value][j] = dummy
@@ -29,7 +29,7 @@ def eliminate(A_matrix, s_vector, b_vector, tolerance):
     n = len(A_matrix)
     error = 0
     for k in range(n-1):
-        [temp_A, temp_B, temp_S] = pivot(A_matrix, b_vector, s_vector, k)
+        [temp_A, temp_B, temp_S] = pivot(A_matrix, b_vector, s_vector, k, n)
         A_matrix = temp_A
         b_vector = temp_B
         s_vector = temp_S
@@ -49,22 +49,23 @@ def substitute(A_matrix, b_vector, x_vector):
     n = len(A_matrix)
     x_vector[n-1] = b_vector[n-1] / A_matrix[n-1][n-1]
     for i in reversed(range(n-1)):
-        sum = 0
+        total = 0
         for j in range(i, n):
-            sum += A_matrix[i][j]*x_vector[j]
-        x_vector[n-1] = (b_vector[n-1] - sum)/A_matrix[n-1][n-1]
+            total += A_matrix[i][j]*x_vector[j]
+        x_vector[i] = (b_vector[i] - total)/A_matrix[i][i]
     return A_matrix, b_vector, x_vector
 
 def gauss_elim(A_matrix, b_vector, tolerance):
     n = len(A_matrix)
-    s_vector = []
     solution = []
+    for row in range(n):
+        solution.append(0)
+    s_vector = []
     for i in range(n):
         s_vector.append([])
-        solution.append(0)
     for i in range(n):
         s_vector[i] = abs(A_matrix[i][0])
-        for j in range(1,n):
+        for j in range(1, n):
             if abs(A_matrix[i][j] > s_vector[i]):
                 s_vector[i] = abs(A_matrix[i][j])
     [temp_A, temp_B, error] = eliminate(A_matrix, s_vector, b_vector, tolerance)
@@ -77,12 +78,15 @@ def gauss_elim(A_matrix, b_vector, tolerance):
         solution = temp_sol
     return solution
 
-    solution = []
 
 
 if __name__ == '__main__':
-    A = [[3, -0.1, -0.2], [0.1, 7, -0.3], [0.3, -0.2, 10]]
-    b = [7.85, -19.3, 71.4]
+    A = [[70, 1, 0], [60, -1, 1], [40, 0, -1]]
+    b = [636.7, 518.6, 307.4]
+    # A = [[3, -0.1, -0.2], [0.1, 7, -0.3], [0.3, -0.2, 10]]
+    # b = [7.85, -19.3, 71.4]
+    # A = [[-0.2, -0.1, 3], [-0.3, 7, 0.1], [10, -0.2, 0.3]]
+    # b = [7.85, -19.3, 71.4]
     tolerance = 1e-6
 
     print(gauss_elim(A, b, tolerance))
