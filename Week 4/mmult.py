@@ -10,7 +10,10 @@
 def mmult(matrix_A, matrix_B):
     n = len(matrix_A)
     m = len(matrix_A[0])
-    l = len(matrix_B[0])
+    try:
+        l = len(matrix_B[0])
+    except TypeError:
+        l = 1
     if (m == len(matrix_B)):
         product = []
         for r in range(n):
@@ -21,7 +24,10 @@ def mmult(matrix_A, matrix_B):
             for j in range(l):
                 sum = 0
                 for k in range(m):
-                    sum += matrix_A[i][k]*matrix_B[k][j]
+                    if l == 1:
+                        sum += matrix_A[i][k] * matrix_B[k]
+                    else:
+                        sum += matrix_A[i][k]*matrix_B[k][j]
                 product[i][j] = sum
     return product
 
