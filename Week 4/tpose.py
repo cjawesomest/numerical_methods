@@ -4,10 +4,15 @@
 
 def tpose(matrix_or_vector):
     transpose = []
-    for r in range(len(matrix_or_vector[0])):
-        transpose.append([])
-        for c in range(len(matrix_or_vector)):
-            transpose[r].append([])
+    try:
+        for r in range(len(matrix_or_vector[0])):
+            transpose.append([])
+            for c in range(len(matrix_or_vector)):
+                transpose[r].append([])
+    except TypeError:
+        for r in range(len(matrix_or_vector)):
+            transpose.append([matrix_or_vector[r]])
+        return transpose
     row_number = 0
     for row in matrix_or_vector:
         col_number = 0
