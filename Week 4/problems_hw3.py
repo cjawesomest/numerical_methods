@@ -11,7 +11,7 @@ from mmult import mmult
 from tpose import tpose
 
 if __name__ == '__main__':
-    #Problem 1
+    #Problem 1 (Solution: x = 68/69 = 0.98550724637, y = 101/69 = 1.46376811594, z = 21/23 = 0.91304347826)
     print("Problem 1: Sole a system of equations!")
     prob_1_system = [[0, -3, 7], [1, 2, -1], [5, -2, 0]]
     prob_1_rhs = [2, 3, 2]
@@ -29,9 +29,14 @@ if __name__ == '__main__':
                     numerator_matrix[j].append(prob_1_system[j][k])
         cramer_sol.append(determinant(numerator_matrix)/deter)
     print("b)\tSolved using Cramer's rule: "+str(cramer_sol))
+    # prob_1_system = [[0, -3, 7], [1, 2, -1], [5, -2, 0]]
+    # prob_1_rhs = [2, 3, 2]
     print("c)\tSolved using Gauss Elimination: "+str(gauss_elim(prob_1_system, prob_1_rhs, 1e-6)))
     print("d)\tSolved using Gauss Jordan: "+str(gauss_jordan(prob_1_system, prob_1_rhs, 1e-6)))
-    print("e)\tSolved using Gauss Seidel: "+str(gauss_seidel(prob_1_system, prob_1_rhs, 0.8)))
+    try:
+        print("e)\tSolved using Gauss Seidel: "+str(gauss_seidel(prob_1_system, prob_1_rhs, 0.8)))
+    except ZeroDivisionError:
+        print("e)\tCannot by solved using Gauss Seidel! We have diagonal zero elements!")
     mult_inv_sol = mmult(matinv(prob_1_system), prob_1_rhs)
     for i in range(len(mult_inv_sol)): mult_inv_sol[i] = mult_inv_sol[i][0]
     print("f)\tSolved using mmult and matinv: "+str(mult_inv_sol))

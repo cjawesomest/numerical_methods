@@ -2,21 +2,26 @@
 # Calculates the determinant using the Gauss elimination method. The input is a
 # # square matrix. The output is the determinant.
 
-def pivot(A_matrix, s_vector, k_value, iter, number_of_pivots_so_far):
+def pivot(some_matrix, s_vector, k_value, iter, number_of_pivots_so_far):
     n = iter
+    A_matrix = []
+    for i in range(len(some_matrix)):
+        A_matrix.append([])
+        for j in range(len(some_matrix)):
+            A_matrix[i].append(some_matrix[i][j])
     pivot = k_value
-    big = abs(A_matrix[k_value][k_value]/s_vector[k_value])
+    big = abs(some_matrix[k_value][k_value]/s_vector[k_value])
     for i in range(k_value, n):
-        dummy = abs(A_matrix[i][k_value]/s_vector[i])
+        dummy = abs(some_matrix[i][k_value]/s_vector[i])
         if dummy > big:
             big = dummy
             pivot = i
     if not pivot == k_value:
         for j in range(k_value, n):
-            dummy = A_matrix[pivot][j]
-            A_matrix[pivot][j] = A_matrix[k_value][j]
+            dummy = some_matrix[pivot][j]
+            A_matrix[pivot][j] = some_matrix[k_value][j]
             A_matrix[k_value][j] = dummy
-            number_of_pivots_so_far += 1
+        number_of_pivots_so_far += 1
         dummy = s_vector[pivot]
         s_vector[pivot] = s_vector[k_value]
         s_vector[k_value] = dummy
