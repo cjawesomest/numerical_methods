@@ -2,38 +2,98 @@
 # Solves a system of nonlinear equations using the Gauss elimination method.
 # The input is the matrix of nonlinear equations F and the partial derivative matrix Z. The
 # output is the solution X, which is a column vector.
-from gauss_elim import gauss_elim
-from mmult import mmult
-from tpose import tpose
-import math
+def pivot(some_matrix, some_rhs, s_vector, k_value, iter):
+    n = iter
+    A_matrix = []
+    b_vector = []
+    for i in range(len(some_matrix)):
+        A_matrix.append([])
+        b_vector.append(some_rhs[i])
+        for j in range(len(some_matrix)):
+            A_matrix[i].append(some_matrix[i][j])
+    pivot = k_value
+    big = abs(some_matrix[k_value][k_value]/s_vector[k_value])
+    for i in range(k_value, n):
+        dummy = abs(some_matrix[i][k_value]/s_vector[i])
+        if dummy > big:
+            big = dummy
+            pivot = i
+    if not pivot == k_value:
+        for j in range(k_value, n):
+            dummy = some_matrix[pivot][j]
+            A_matrix[pivot][j] = some_matrix[k_value][j]
+            A_matrix[k_value][j] = dummy
+        dummy = some_rhs[pivot]
+        b_vector[pivot] = some_rhs[k_value]
+        b_vector[k_value] = dummy
+        dummy = s_vector[pivot]
+        s_vector[pivot] = s_vector[k_value]
+        s_vector[k_value] = dummy
+    return A_matrix, b_vector, s_vector
 
-def gauss_nonlin(F_system, partial_deriv_Z_matrix):
-    max_error = 1e-5
-    tolerance = 1e-5
-    initial_guesses = [2.5, 3.5]
-    prev_guesses = initial_guesses
-    # A_matrix = []
-    # for i in range(len(partial_deriv_Z_matrix)):
-    #     A_matrix.append([])
-    #     for j in range(len(A_matrix)):
-    #         A_matrix[i].append(partial_deriv_Z_matrix[i][j](prev_guesses))
-    b_vector = mmult(partial_deriv_Z_matrix, tpose(prev_guesses))
-    for i in range(len(b_vector)):
-        b_vector[i] = -1*F_system[i](prev_guesses) + b_vector[i]
-    gauss_elim(A_matrix, b_vector, tolerance)
-    return #solution
+
+def eliminate(A_matrix, s_vector, b_vector, tolerance):
+    n = len(A_matrix)
+    error = 0
+    for k in range(n-1):
+        [temp_A, temp_B, temp_S] = pivot(A_matrix, b_vector, s_vector, k, n)
+        A_matrix = temp_A
+        b_vector = temp_B
+        s_vector = temp_S
+        if abs(A_matrix[k][k]/s_vector[k]) < tolerance:
+            error = -1
+            break
+        for i in range(k+1, n):
+            factor = A_matrix[i][k]/A_matrix[k][k]
+            for j in range(k+1, n):
+                A_matrix[i][j] = A_matrix[i][j] - factor*A_matrix[k][j]
+            b_vector[i] = b_vector[i] - factor * b_vector[k]
+    if abs(A_matrix[n-1][n-1]/s_vector[n-1]) < tolerance:
+        error = -1
+    return A_matrix, b_vector, error
+
+def substitute(A_matrix, b_vector, x_vector):
+    n = len(A_matrix)
+    x_vector[n-1] = b_vector[n-1] / A_matrix[n-1][n-1]
+    for i in reversed(range(n-1)):
+        total = 0
+        for j in range(i, n):
+            total += A_matrix[i][j]*x_vector[j]
+        x_vector[i] = (b_vector[i] - total)/A_matrix[i][i]
+    return A_matrix, b_vector, x_vector
+
+def gauss_nonlin(A_matrix, b_vector, tolerance):
+    n = len(A_matrix)
+    solution = []
+    for row in range(n):
+        solution.append(0)
+    s_vector = []
+    for i in range(n):
+        s_vector.append([])
+    for i in range(n):
+        s_vector[i] = abs(A_matrix[i][0])
+        for j in range(1, n):
+            if abs(A_matrix[i][j] > s_vector[i]):
+                s_vector[i] = abs(A_matrix[i][j])
+    [temp_A, temp_B, error] = eliminate(A_matrix, s_vector, b_vector, tolerance)
+    A_matrix = temp_A
+    b_vector = temp_B
+    if not error == -1:
+        [temp_A, temp_B, temp_sol] = substitute(A_matrix, b_vector, solution)
+        A_matrix = temp_A
+        b_vector = temp_B
+        solution = temp_sol
+    return solution
+
+
 
 if __name__ == '__main__':
-    # Solution x=2, y=3
-    system = [lambda x, y: x ** 2 + x * y - 10, lambda x, y: y + 3 * x * (y ** 2) - 57]
-    partial_derivs = [[lambda x, y: 2 * x + y, lambda x, y: x],
-                          [lambda x, y: 3 * (y ** 2), lambda x, y: 1 + 6 * x * y]]
+    A = [[70, 1, 0], [60, -1, 1], [40, 0, -1]]
+    b = [636.7, 518.6, 307.4]
+    # A = [[3, -0.1, -0.2], [0.1, 7, -0.3], [0.3, -0.2, 10]]
+    # b = [7.85, -19.3, 71.4]
+    # A = [[-0.2, -0.1, 3], [-0.3, 7, 0.1], [10, -0.2, 0.3]]
+    # b = [7.85, -19.3, 71.4]
+    tolerance = 1e-6
 
-    # Solution x≈1.39889, y≈1.34804, z≈1.06491
-    # system = [lambda x, y, z: math.exp(x) + math.exp(y) - math.exp(z) - 5,
-    #           lambda x, y, z: math.exp(2*x) - math.exp(2*y) + math.exp(2*z) - 10,
-    #           lambda x, y, z: -1*math.exp(3*x) + math.exp(3*y) + math.exp(3*z) - 15]
-    # partial_derivs = [[lambda x, y, z: math.exp(x), lambda x, y, z: math.exp(y), lambda x, y, z: -1*math.exp(z)],
-    #           [lambda x, y, z: 2*math.exp(2*x), lambda x, y, z: -2*math.exp(2*y), lambda x, y, z: 2*math.exp(2*z)],
-    #           [lambda x, y, z: -3*math.exp(3*x), lambda x, y, z: 3*math.exp(3*y), lambda x, y, z: 3*math.exp(3*z)]]
-    print(gauss_nonlin(system, partial_derivs))
+    print(gauss_nonlin(A, b, tolerance))
