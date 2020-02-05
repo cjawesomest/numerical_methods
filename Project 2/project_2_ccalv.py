@@ -37,7 +37,7 @@ if __name__ == '__main__':
 
     # #==Establishing our Specifics==# #
     # #System# #
-    gravity = 9.81
+    gravity = 9.812
     mass_flow_rate_total = 5
     max_iter = 1000
     min_error = 0.00001
@@ -51,7 +51,6 @@ if __name__ == '__main__':
     p_pipe_1 = 1000
     mu_pipe_1 = 0.001
     mass_flow_rate_pipe_1 = lambda v: p_pipe_1*(math.pi*(D_pipe_1/2)**2)*v
-    # head_loss_pipe_1 = lambda f, v: f*(L_pipe_1/D_pipe_1)*((v**2)/(2*gravity))
 
     # #Pipe 2# #
     L_pipe_2 = L_pipe_1
@@ -66,8 +65,6 @@ if __name__ == '__main__':
     p_pipe_2 = p_pipe_1
     mu_pipe_2 = mu_pipe_1
     mass_flow_rate_pipe_2 = lambda D, v: p_pipe_2 * (math.pi * (D / 2) ** 2) * v
-    # head_loss_pipe_2 = lambda f, v, D: f * (L_pipe_2 / D) * ((v ** 2) / (2 * gravity))
-
 
     # #==Plotting for the Project==# #
     # #Set up our Y_value Lists# #
@@ -103,7 +100,7 @@ if __name__ == '__main__':
         while (abs(hL_pipe_1 - hL_pipe_2) > head_loss_tolerance and flow_rate_1 < mass_flow_rate_total and difference < previous_difference):
             previous_difference = difference
             flow_rate_1 += flow_rate_step
-            #Determine friction factor
+
             v_1 = velocity_pipe_1(flow_rate_1)
             v_2 = velocity_pipe_2(mass_flow_rate_total - flow_rate_1)
             A_pipe_1 = A_calc(eps_pipe_1, D_pipe_1)
@@ -112,16 +109,39 @@ if __name__ == '__main__':
             A_pipe_2 = A_calc(eps_pipe_2, diameter_pipe_2)
             Re_pipe_2 = reynolds_number(p_pipe_2, v_2, diameter_pipe_2, mu_pipe_2)
             B_pipe_2 = B_calc(Re_pipe_2)
-            solve_for_f_pipe_1 = lambda f: colebrook_simplified(f, A_pipe_1, B_pipe_1)
-            solve_for_f_pipe_2 = lambda f: colebrook_simplified(f, A_pipe_2, B_pipe_2)
-            solve_for_f_pipe_1_deriv = lambda f: colebrook_simple_deriv(f, A_pipe_1, B_pipe_1)
-            solve_for_f_pipe_2_deriv = lambda f: colebrook_simple_deriv(f, A_pipe_2, B_pipe_2)
 
-            output_pipe_1 = newton_rhapson(solve_for_f_pipe_1, solve_for_f_pipe_1_deriv, .04, max_iter, min_error)
-            output_pipe_2 = newton_rhapson(solve_for_f_pipe_2, solve_for_f_pipe_2_deriv, .04, max_iter, min_error)
+            # Determine friction factor for pipe 1 and 2
+            if (Re_pipe_1 < 2300):
+                f_pipe_1 = 64 / Re_pipe_1
+            elif (Re_pipe_1 >= 2300 and Re_pipe_1 < 4000):
+                # Linear interpolation
+                f_low_1 = 64/2300
+                solve_for_f_pipe_1 = lambda f: colebrook_simplified(f, A_pipe_1, B_calc(4000))
+                solve_for_f_pipe_1_deriv = lambda f: colebrook_simple_deriv(f, A_pipe_1, B_calc(4000))
+                output_pipe_1 = newton_rhapson(solve_for_f_pipe_1, solve_for_f_pipe_1_deriv, .03, max_iter, min_error)
+                f_high_1 = output_pipe_1[0]
+                f_pipe_1 = (Re_pipe_1 - 2300) * (f_high_1 - f_low_1) / (4000 - 2300) + f_low_1
+            else:
+                solve_for_f_pipe_1 = lambda f: colebrook_simplified(f, A_pipe_1, B_pipe_1)
+                solve_for_f_pipe_1_deriv = lambda f: colebrook_simple_deriv(f, A_pipe_1, B_pipe_1)
+                output_pipe_1 = newton_rhapson(solve_for_f_pipe_1, solve_for_f_pipe_1_deriv, .03, max_iter, min_error)
+                f_pipe_1 = output_pipe_1[0]
 
-            f_pipe_1 = output_pipe_1[0]
-            f_pipe_2 = output_pipe_2[0]
+            if (Re_pipe_2 < 2300):
+                f_pipe_2 = 64/Re_pipe_2
+            elif (Re_pipe_2 >= 2300 and Re_pipe_2 < 4000):
+                # Linear interpolation
+                f_low_2 = 64/2300
+                solve_for_f_pipe_2 = lambda f: colebrook_simplified(f, A_pipe_2, B_calc(4000))
+                solve_for_f_pipe_2_deriv = lambda f: colebrook_simple_deriv(f, A_pipe_2, B_calc(4000))
+                output_pipe_2 = newton_rhapson(solve_for_f_pipe_2, solve_for_f_pipe_2_deriv, .03, max_iter, min_error)
+                f_high_2 = output_pipe_2[0]
+                f_pipe_2 = (Re_pipe_2 - 2300) * (f_high_2 - f_low_2) / (4000 - 2300) + f_low_2
+            else:
+                solve_for_f_pipe_2 = lambda f: colebrook_simplified(f, A_pipe_2, B_pipe_2)
+                solve_for_f_pipe_2_deriv = lambda f: colebrook_simple_deriv(f, A_pipe_2, B_pipe_2)
+                output_pipe_2 = newton_rhapson(solve_for_f_pipe_2, solve_for_f_pipe_2_deriv, .03, max_iter, min_error)
+                f_pipe_2 = output_pipe_2[0]
             hL_pipe_1 = head_loss_pipe_1(f_pipe_1, v_1)
             hL_pipe_2 = head_loss_pipe_2(f_pipe_2, v_2)
             # print("\tComparing head loss: "+str(hL_pipe_1)+" & "+str(hL_pipe_2))
@@ -170,6 +190,7 @@ if __name__ == '__main__':
     plt.xlabel('Diameter of Pipe 2 (m)')
     plt.ylabel('Reynold\'s Number Value')
     # plt.axis([0.0, 0.5, 0, 0.00175])
+    plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
     plt.grid(True, which="both")
     plt.title("c) Reynold's Number Plot Project 2 Calv")
 
@@ -181,6 +202,7 @@ if __name__ == '__main__':
     plt.xlabel('Diameter of Pipe 2 (m)')
     plt.ylabel('Head Loss (m)')
     plt.axis([0.0, 0.5, 0, 0.00175])
+    plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
     plt.grid(True, which="both")
     plt.title("d) Head Loss Plot Project 2 Calv")
 
