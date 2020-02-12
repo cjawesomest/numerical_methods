@@ -28,6 +28,7 @@ def optim_steepest_ascent(md_function_handle, gradient_handle, init_step_size, m
 
         prev_x = current_x
         prev_y = current_y
+        iter += 1
     max_location = [current_x, current_y]
     max_val = md_function_handle(current_x, current_y)
     return max_location, max_val
