@@ -21,7 +21,7 @@ def optim_random(twod_function_handle, lower_bounds, upper_bounds, num_trials):
         upper_bound_y = temp
     max_location_x = float('nan')
     max_location_y = float('nan')
-    max_val = 1e-10
+    max_val = -1e10
     trial = 0
     while(1):
         guess_x = lower_bound_x + (upper_bound_x - lower_bound_x) * random.random()
