@@ -211,6 +211,32 @@ if __name__ == '__main__':
     print("The curve with the highest correlation coefficient is Saturation-Growth, therefore it is the best fit.")
 
     # Problem 9
-    print("\nProblem 9: ")
+    print("\nProblem 9: Use nonlinear regression to form a saturation-growth rate fit.")
+    list_1_prob_9 = list_1_prob_8
+    list_2_prob_9 = list_2_prob_8
+    [coefs_prob_9, corr_prob_9] = cf_nonlinfit(list_1_prob_9, list_2_prob_9)
+    mod_list_1 = [[]]
+    for sample in range(len(list_2_prob_9)):
+        mod_list_1[0].append(1)
+    mod_list_1.append(list(list_1_prob_9))
+    fit_prob_9 = list()
+    samp = 0
+    for val in list_2_prob_9:
+        total = 0
+        k = 0
+        for coef in coefs_prob_9:
+            total += coef * mod_list_1[k][samp]
+            k += 1
+        fit_prob_9.append(total)
+        samp += 1
+    fig = plt.figure()
+    ax = fig.gca(projection='3d')
+    plt.plot(list_1_prob_9, list_2_prob_9, label="Plotted Curve", color='blue', linewidth=3)
+    plt.plot(list_1_prob_9, fit_prob_9, label="Fitted Curve", color='orange')
+    plt.title("Plot of Data and Nonlinear Fit for Problem 9")
+    plt.gca().set_xlabel("X")
+    plt.gca().set_ylabel("Y")
+    plt.legend()
+    print("Note that the output for a one dimensional dataset is of 1st order. The fitted data is linear for this reason.")
 
     plt.show()
